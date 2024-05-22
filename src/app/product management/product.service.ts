@@ -14,7 +14,13 @@ const getAllProductsFromDB = async () => {
 }
 
 const searchTermFromDB = async () => {
-  const result = await Product.find({ "description": { "$regex": 'iphone', "$options": "i" } }) ;
+  const result = await Product.find({
+    $or: [
+      { description: { $regex: 'iphone', $options: 'i' } },
+      { name: { $regex: 'iphone', $options: 'i' } },
+      { category: { $regex: 'iphone', $options: 'i' } },
+    ]
+  });
   // console.log('searchText',result)
   return result;
 };
@@ -38,7 +44,10 @@ const updateProductByIdFromDB = async (productId: string,updateData:any) => {
 };
 
 const deleteProductFromDB = async (productId: string) => {
-  const result = await Product.findByIdAndDelete(productId);
+  // const result = await Product.findOneAndDelete({_id:productId});
+   await Product.findByIdAndDelete(productId);
+
+   const result = Product.findById(productId)
 
   return result;
 };
