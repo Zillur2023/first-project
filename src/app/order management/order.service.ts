@@ -1,24 +1,12 @@
 import { Product } from '../product management/product.model';
 import { ProductRoutes } from '../product management/product.route';
+import { ProductService } from '../product management/product.service';
 import { TOrder } from './order.interface';
 import { Order } from './order.model';
+import mongoose from 'mongoose';
 
 const createOrderIntoDB = async (order: TOrder) => {
-  const data =await Order.aggregate([
-    // {$project: {projectId: 1, price:1}}
-    {
-      $lookup:
-        {
-          from: 'Product',
-          localField: 'productId',
-          foreignField: '_id',
-          as: 'user'
-        }
-   }
-  ])
-  console.log(data)
-  
-  const result = await Order.create(order); 
+   const result = await Order.create(order);
 
   return result;
 };
@@ -30,7 +18,9 @@ const getAllOrdersFromDB = async () => {
 };
 
 const searchEmailFromDB = async () => {
-  const result = await Order.find({ email: { $regex: 'level2@programming-hero.com', $options: 'i' }});
+  const result = await Order.find({
+    email: { $regex: 'level2@programming-hero.com', $options: 'i' },
+  });
 
   return result;
 };
@@ -60,9 +50,9 @@ const deleteProductFromDB = async (productId: string) => {
 };
 
 export const OrderService = {
-   createOrderIntoDB,
-   getAllOrdersFromDB,
-   searchEmailFromDB,
+  createOrderIntoDB,
+  getAllOrdersFromDB,
+  searchEmailFromDB,
   getProductByIdFromDB,
   updateProductByIdFromDB,
   deleteProductFromDB,
