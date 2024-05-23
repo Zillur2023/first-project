@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { OrderService } from './order.service';
 import { Product } from '../product management/product.model';
+import { ObjectId } from 'mongodb';
 
 const createOrder = async (req: Request, res: Response) => {
   try {
@@ -8,25 +9,52 @@ const createOrder = async (req: Request, res: Response) => {
     const orderQuantity = order.quantity;
     const allProducts = await Product.find();
 
-    const data = allProducts.filter(
+    const targetProduct = allProducts.filter(
       (item) => item._id.toString() == order.productId,
     );
-    const productQuantity = data[0]?.inventory?.quantity;
+    const productQuantity = targetProduct[0]?.inventory?.quantity;
     const quantity = productQuantity >= orderQuantity;
-    const stock =
-      productQuantity == 0
-        ? (data[0].inventory.inStock = false)
-        : (data[0].inventory.inStock = true);
-
-        console.log(stock)
 
     let result;
-    console.log({ result });
-    if (data && quantity) {
+
+    if (targetProduct && quantity) {
       await Product.updateOne(
-        { _id: data[0]._id },
-        // { $inc: { 'inventory.quantity': -orderQuantity } },
-        { $set: { 'inventory.inStock': stock } },
+        { _id: targetProduct[0]._id },
+
+        {
+          $inc: { 'inventory.quantity': -orderQuantity },
+        },
+      );
+
+      const aggregateResult = await Product.aggregate([
+        {
+          $match: {
+            _id: targetProduct[0]._id,
+            // _id: new ObjectId(order.productId)
+          },
+        },
+        // {
+        //   $set: {
+        //     name: '123',
+        //     "inventory.quantity": { $subtract: ["$inventory.quantity", orderQuantity] },
+        //     "inventory.inStock": { $cond: [{ $gte: [{ $subtract: ["$inventory.quantity", orderQuantity] }, 1] }, true, false] }
+        //   }
+        // },
+        { $project: { _id: 0, inventory: '$inventory.quantity' } },
+      ]);
+      // console.log(JSON.stringify({ aggregateResult }, null, 2));
+      console.log(JSON.stringify(aggregateResult[0].inventory));
+      const stock =
+        aggregateResult[0].inventory == 0
+          ? (targetProduct[0].inventory.inStock = false)
+          : (targetProduct[0].inventory.inStock = true);
+
+      await Product.updateOne(
+        { _id: targetProduct[0]._id },
+
+        {
+          $set: { 'inventory.inStock': stock },
+        },
       );
 
       result = await OrderService.createOrderIntoDB(order);
@@ -37,7 +65,6 @@ const createOrder = async (req: Request, res: Response) => {
         data: result,
       });
     } else {
-      // throw new Error("Insufficient quantity available in inventory")
       res.status(200).json({
         success: false,
         message: 'Insufficient quantity available in inventory',
