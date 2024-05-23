@@ -68,7 +68,6 @@ const createOrder = async (req: Request, res: Response) => {
       res.status(200).json({
         success: false,
         message: 'Insufficient quantity available in inventory',
-        data: result,
       });
     }
 
@@ -78,8 +77,7 @@ const createOrder = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: `Something went wrong`,
-      error,
+      message: `Route not found`,
     });
   }
 };
@@ -99,7 +97,7 @@ const getAllOrders = async (req: Request, res: Response) => {
         data: result,
       });
     } else {
-      result = await OrderService.searchEmailFromDB();
+      result = await OrderService.searchEmailFromDB(email);
 
       res.status(200).json({
         success: true,
