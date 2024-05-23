@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import { OrderService } from './order.service';
 import { Product } from '../product management/product.model';
 import { ObjectId } from 'mongodb';
+import orderValidationSchema from './order.validation';
 
 const createOrder = async (req: Request, res: Response) => {
   try {
     const order = req.body;
+    const zodParsesdData = orderValidationSchema.parse(order)
     const orderQuantity = order.quantity;
     const allProducts = await Product.find();
 
@@ -57,7 +59,7 @@ const createOrder = async (req: Request, res: Response) => {
         },
       );
 
-      result = await OrderService.createOrderIntoDB(order);
+      result = await OrderService.createOrderIntoDB(zodParsesdData);
 
       res.status(200).json({
         success: true,
