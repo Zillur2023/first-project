@@ -1,7 +1,7 @@
 
 export type TVariant = {
   type: string;
-  value: string;
+  value: string | number;
 };
 
 export type TInventory = {
