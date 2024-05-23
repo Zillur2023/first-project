@@ -13,12 +13,12 @@ const getAllProductsFromDB = async () => {
   return result;
 }
 
-const searchTermFromDB = async () => {
+const searchTermFromDB = async (searchTerm:any) => {
   const result = await Product.find({
     $or: [
-      { description: { $regex: 'iphone', $options: 'i' } },
-      { name: { $regex: 'iphone', $options: 'i' } },
-      { category: { $regex: 'iphone', $options: 'i' } },
+      { description: { $regex: searchTerm, $options: 'i' } },
+      { name: { $regex: searchTerm, $options: 'i' } },
+      { category: { $regex: searchTerm, $options: 'i' } },
     ]
   });
   // console.log('searchText',result)

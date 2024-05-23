@@ -29,7 +29,7 @@ const getAllProducts = async (req: Request, res: Response) => {
     let result;
     // console.log('result',result)
     const searchTerm = req.query.searchTerm
-     console.log(searchTerm)
+     console.log('searchTerm',searchTerm)
     if (!searchTerm ) {
       result = await ProductService.getAllProductsFromDB();
 
@@ -39,7 +39,7 @@ const getAllProducts = async (req: Request, res: Response) => {
         data: result,
       });
     } else {
-      result = await ProductService.searchTermFromDB();
+      result = await ProductService.searchTermFromDB(searchTerm);
 
       res.status(200).json({
         success: true,
