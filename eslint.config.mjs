@@ -4,7 +4,7 @@ import tseslint from "typescript-eslint";
 
 
 export default [
-  {languageOptions: { globals: {...globals.node, process: "readOnly"} },
+  {languageOptions: { globals: {...globals.node} },
   ignores: ["**/node_modules/", ".dist/"],
   rules: {
     "no-unused-vars": "error",
@@ -13,7 +13,6 @@ export default [
     "no-console": "warn",
     "no-undef": "error",
   },
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
 },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,

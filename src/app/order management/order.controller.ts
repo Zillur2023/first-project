@@ -19,7 +19,18 @@ const createOrder = async (req: Request, res: Response) => {
 
     let result;
 
-    if (targetProduct && quantity) {
+   if(!targetProduct[0]) {
+      res.status(500).json({
+        success: false,
+        message: "Product id not match"
+      });
+    }
+     else if(!quantity) {
+      res.status(500).json({
+        success: false,
+        message: 'Insufficient quantity available in inventory',
+      })
+    } else   if (targetProduct && quantity) {
       await Product.updateOne(
         { _id: targetProduct[0]._id },
 
@@ -66,11 +77,6 @@ const createOrder = async (req: Request, res: Response) => {
         message: 'Order created successfully!',
         data: result,
       });
-    } else {
-      res.status(200).json({
-        success: false,
-        message: 'Insufficient quantity available in inventory',
-      });
     }
 
     return result;
@@ -93,25 +99,44 @@ const getAllOrders = async (req: Request, res: Response) => {
     if (!email) {
       result = await OrderService.getAllOrdersFromDB();
 
-      res.status(200).json({
-        success: true,
-        message: 'Orders fetched successfully!',
-        data: result,
-      });
+    
+
+      if(result[0]) {
+        res.status(200).json({
+          success: true,
+          message: "Orders fetched successfully!",
+          data: result,
+        });
+      } else{
+        res.status(200).json({
+          success: false,
+          message: "Order not found",
+        });
+      }
     } else {
       result = await OrderService.searchEmailFromDB(email);
 
-      res.status(200).json({
-        success: true,
-        message: 'Orders fetched successfully for user email!',
-        data: result,
-      });
+      console.log(result[0])
+
+      if(result[0]) {
+        res.status(200).json({
+          success: true,
+          message: 'Orders fetched successfully for user email!',
+          data: result,
+        });
+      } else{
+        res.status(200).json({
+          success: false,
+          message: "Order not found",
+        });
+      }
+
+   
     }
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: `Something went wrong`,
-      error,
+      message: "Order not found"
     });
   }
 };
