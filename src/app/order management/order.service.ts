@@ -1,9 +1,6 @@
-import { Product } from '../product management/product.model';
-import { ProductRoutes } from '../product management/product.route';
-import { ProductService } from '../product management/product.service';
+
 import { TOrder } from './order.interface';
 import { Order } from './order.model';
-import mongoose from 'mongoose';
 
 const createOrderIntoDB = async (order: TOrder) => {
    const result = await Order.create(order);
@@ -26,7 +23,6 @@ const searchEmailFromDB = async (email:any) => {
 };
 
 const getProductByIdFromDB = async (productId: string) => {
-  // const result = await Product.findOne({_id:productId});
   const result = await Order.findById(productId);
 
   return result;

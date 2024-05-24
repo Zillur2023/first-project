@@ -10,6 +10,8 @@ const createProduct = async (req: Request, res: Response) => {
 
     const result = await ProductService.createProductIntoDB(zodParsedData);
 
+    
+
     res.status(200).json({
       success: true,
       message: "Product created successfully!",
@@ -18,7 +20,7 @@ const createProduct = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({
       success: false,
-      message: `Something went wrong`,
+      message: error.issues.map(( err:any) => `${(err.message)} ---> ${err.path}`) || `Something went wrong`,
       error,
     });
   }
@@ -27,32 +29,42 @@ const createProduct = async (req: Request, res: Response) => {
 const getAllProducts = async (req: Request, res: Response) => {
   try {
     let result;
-    // console.log('result',result)
-    const searchTerm = req.query.searchTerm
-     console.log('searchTerm',searchTerm)
+    const {searchTerm} = req.query
+
     if (!searchTerm ) {
       result = await ProductService.getAllProductsFromDB();
 
-      res.status(200).json({
-        success: true,
-        message: "Products fetched successfully!",
-        data: result,
-      });
-    } else {
-      result = await ProductService.searchTermFromDB(searchTerm);
+      const jsonData = {
+        success: result[0]? true: false,
+        message: result[0] ?"Products fetched successfully!":"No product available",
+      }
+      result[0]?jsonData.data = result:''
 
-      res.status(200).json({
-        success: true,
-        message: "Products matching search term 'iphone' fetched successfully!",
-        data: result,
-      });
+      res.status(result[0]?200:500).json(jsonData);
+
+   
+    } else if(searchTerm) {
+      result = await ProductService.searchTermFromDB(searchTerm);
+      
+
+      const jsonData = {
+        success: result[0]? true: false,
+        message: result[0] ?`Products matching search term '${searchTerm}' fetched successfully!`:`No products matching search term '${searchTerm}' fetched fail!`,
+      }
+      result[0]?jsonData.data = result:''
+      
+
+        res.status(result[0]?200:404).json(jsonData);
+     
+      
     }
  
   } catch (error) {
+ 
     res.status(500).json({
       success: false,
       message: `Something went wrong`,
-      error,
+      error
     });
   }
 };
@@ -61,17 +73,22 @@ const getProductById = async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
     const result = await ProductService.getProductByIdFromDB(productId);
+    
+    console.log(result)
+    const jsonData = {
+      success: result?true:false,
+      message:result?"Product fetched successfully!":"The product not available",
+    }
+    result?jsonData.data=result:''
 
-    res.status(200).json({
-      success: true,
-      message: "Product fetched successfully!",
-      data: result,
-    });
+    res.status(result?200:404).json(jsonData);
+
+  
   } catch (error) {
     res.status(500).json({
       success: false,
       message: `Something went wrong`,
-      error,
+      error
     });
   }
 };
