@@ -3,6 +3,7 @@ import { OrderService } from './order.service';
 import { Product } from '../product management/product.model';
 // import { ObjectId } from 'mongodb';
 import orderValidationSchema from './order.validation';
+import { TJsonData } from '../config';
 
 const createOrder = async (req: Request, res: Response) => {
   try {
@@ -88,7 +89,7 @@ const getAllOrders = async (req: Request, res: Response) => {
     if (!email) {
       result = await OrderService.getAllOrdersFromDB();
 
-      const jsonData = {
+      const jsonData: TJsonData = {
         success: result[0] ? true : false,
         message: result[0] ? 'Orders fetched successfully!' : 'Order not found',
       };
@@ -101,7 +102,7 @@ const getAllOrders = async (req: Request, res: Response) => {
 
       // console.log(result[0])
 
-      const jsonData = {
+      const jsonData: TJsonData = {
         success: result[0] ? true : false,
         message: result[0]
           ? 'Orders fetched successfully for user email!'
